@@ -20,7 +20,7 @@ public class JwtUtil {
     private String secret;
 
     @Value("${jwt.expiration}")
-    private int expiration;
+    private int expiration; // en segundos
 
     public String generateToken(Authentication authentication) {
         UserDetails mainUser = (UserDetails) authentication.getPrincipal();

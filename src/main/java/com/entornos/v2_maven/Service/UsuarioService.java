@@ -12,6 +12,7 @@
     import org.springframework.stereotype.Service;
 
     import java.util.Collections;
+    import java.util.List;
 
     @NoArgsConstructor
     @Service
@@ -45,5 +46,9 @@
 
         public void save(Usuario usuario) {
             usuarioRepository.save(usuario);
+        }
+
+        public List<Usuario> findAll() {
+            return usuarioRepository.findAll();
         }
     }
