@@ -13,6 +13,7 @@
 
     import java.util.Collections;
     import java.util.List;
+    import java.util.Optional;
 
     @NoArgsConstructor
     @Service
@@ -50,5 +51,14 @@
 
         public List<Usuario> findAll() {
             return usuarioRepository.findAll();
+        }
+
+        public Usuario obtenerUsuarioPorUsername(String username) {
+            return usuarioRepository.findByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+        }
+
+        public Optional<Usuario> findByUsername(String username) {
+            return usuarioRepository.findByUsername(username);
         }
     }

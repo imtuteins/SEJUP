@@ -13,6 +13,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+
+
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
@@ -27,10 +29,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-
         final String authorizationHeader = request.getHeader("Authorization");
         String userName = null;
         String jwt = null;
+        String path = request.getRequestURI();
+
+        if (path.startsWith("/auth/login") || path.startsWith("/auth/register")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
