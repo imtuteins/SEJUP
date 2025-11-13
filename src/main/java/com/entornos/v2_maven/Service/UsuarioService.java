@@ -1,6 +1,9 @@
     package com.entornos.v2_maven.Service;
 
+    import com.entornos.v2_maven.Entity.Rol;
     import com.entornos.v2_maven.Entity.Usuario;
+    import com.entornos.v2_maven.Enums.RoleList;
+    import com.entornos.v2_maven.Repository.RolRepository;
     import com.entornos.v2_maven.Repository.UsuarioRepository;
     import lombok.NoArgsConstructor;
     import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,8 @@
     public class UsuarioService implements UserDetailsService {
 
         private UsuarioRepository usuarioRepository;
+        @Autowired
+        private RolRepository rolRepository;
 
         @Autowired
         public UsuarioService(UsuarioRepository usuarioRepository) {
@@ -60,5 +65,28 @@
 
         public Optional<Usuario> findByUsername(String username) {
             return usuarioRepository.findByUsername(username);
+        }
+
+        public void deleteUserById(Long id) {
+            usuarioRepository.deleteById(id);
+        }
+
+        public void updateUserRole(Long id, String rolName) {
+            Usuario usuario = usuarioRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+            // Convierte el String recibido en el enum
+            RoleList roleEnum;
+            try {
+                roleEnum = RoleList.valueOf(rolName); // rolName = "ROLE_CLIENTE", "ROLE_ABOGADO"
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Rol no válido");
+            }
+
+            Rol rol = rolRepository.findByName(roleEnum)
+                    .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado"));
+
+            usuario.setRol(rol);
+            usuarioRepository.save(usuario);
         }
     }

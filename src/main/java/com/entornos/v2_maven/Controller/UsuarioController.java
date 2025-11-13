@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin")
@@ -30,5 +31,18 @@ public class UsuarioController {
         model.addAttribute("usuarios", usuarioService.findAll());
         return "usuarios";
 
+    }
+
+    @PutMapping("/usuarios/{id}/role")
+    public ResponseEntity<String> updateUserRole(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        String rolName = body.get("rolName");
+        usuarioService.updateUserRole(id, rolName);
+        return ResponseEntity.ok("Rol actualizado");
+    }
+
+    @DeleteMapping("/usuarios/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        usuarioService.deleteUserById(id);
+        return ResponseEntity.ok("Usuario eliminado");
     }
 }
