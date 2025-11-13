@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, Card, Container, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -8,6 +9,7 @@ function Login() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // Login clásico
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
@@ -21,23 +23,38 @@ function Login() {
 
       if (response.ok) {
         const token = await response.text();
-
-        // Guardar token
         localStorage.setItem('token', token);
 
-        if (username.toLowerCase() === 'admin') {
-          localStorage.setItem('rol', 'ADMIN');
-        } else if (username.toLowerCase() === 'abogado') {
-          localStorage.setItem('rol', 'ABOGADO');
-        } else {
-          localStorage.setItem('rol', 'CLIENTE');
-        }
+        if (username.toLowerCase() === 'admin') localStorage.setItem('rol', 'ADMIN');
+        else if (username.toLowerCase() === 'abogado') localStorage.setItem('rol', 'ABOGADO');
+        else localStorage.setItem('rol', 'CLIENTE');
+
         navigate('/home');
       } else {
         setError('Usuario o contraseña incorrectos');
       }
     } catch (err) {
       setError('Error al conectar con el servidor');
+    }
+  };
+
+  // Login con Google
+  const handleGoogleLoginSuccess = async (credentialResponse) => {
+    const tokenGoogle = credentialResponse.credential;
+
+    try {
+      const response = await fetch('http://localhost:8080/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tokenGoogle }),
+      });
+
+      const data = await response.json();
+      localStorage.setItem('token', data.jwt);
+      localStorage.setItem('rol', 'CLIENTE'); // todos los google users son CLIENTE por ahora
+      navigate('/home');
+    } catch (error) {
+      console.error('Error login Google:', error);
     }
   };
 
@@ -48,6 +65,7 @@ function Login() {
           <h3 className="text-center mb-4">Iniciar Sesión</h3>
           {error && <Alert variant="danger">{error}</Alert>}
 
+          {/* Login clásico */}
           <Form onSubmit={handleLogin}>
             <Form.Group className="mb-3">
               <Form.Label>Usuario</Form.Label>
@@ -71,10 +89,18 @@ function Login() {
               />
             </Form.Group>
 
-            <Button variant="primary" type="submit" className="w-100">
+            <Button variant="primary" type="submit" className="w-100 mb-3">
               Entrar
             </Button>
           </Form>
+
+          <hr />
+
+          {/* Login con Google */}
+          <GoogleLogin
+            onSuccess={handleGoogleLoginSuccess}
+            onError={() => console.error('Login Google fallido')}
+          />
         </Card.Body>
       </Card>
     </Container>

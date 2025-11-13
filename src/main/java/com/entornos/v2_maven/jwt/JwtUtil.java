@@ -59,4 +59,14 @@ public class JwtUtil {
     public String extractUserName(String token) {
         return extractAllClaims(token).getSubject();
     }
+
+    public String generateTokenFromUsername(String username) {
+        SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000L))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
 }
