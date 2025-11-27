@@ -78,8 +78,7 @@ public class ArchivoServiceImpl implements Archivoservice {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = ((UserDetails) principal).getUsername();
 
-        Usuario usuario = usuarioService.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + username));
+        Usuario usuario = usuarioService.findByUsername(username);
 
         String filename = StringUtils.cleanPath(file.getOriginalFilename());
 

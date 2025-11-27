@@ -2,12 +2,37 @@ import React, { useState } from 'react';
 import { Form, Button, Card, Container, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from 'jwt-decode';
 
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  // Función para redirigir según el rol
+  const redirectByRole = (token) => {
+    try {
+      const decoded = jwtDecode(token);
+      const role = decoded.role;
+
+      localStorage.setItem('rol', role);
+
+      // Redirigir según el rol
+      if (role === 'ROLE_ADMIN') {
+        navigate('/admin');
+      } else if (role === 'ROLE_ABOGADO') {
+        navigate('/abogado');
+      } else if (role === 'ROLE_CLIENTE') {
+        navigate('/cliente');
+      } else {
+        navigate('/home');
+      }
+    } catch (err) {
+      console.error('Error al decodificar el token:', err);
+      navigate('/home');
+    }
+  };
 
   // Login clásico
   const handleLogin = async (e) => {
@@ -24,12 +49,7 @@ function Login() {
       if (response.ok) {
         const token = await response.text();
         localStorage.setItem('token', token);
-
-        if (username.toLowerCase() === 'admin') localStorage.setItem('rol', 'ADMIN');
-        else if (username.toLowerCase() === 'abogado') localStorage.setItem('rol', 'ABOGADO');
-        else localStorage.setItem('rol', 'CLIENTE');
-
-        navigate('/home');
+        redirectByRole(token);
       } else {
         setError('Usuario o contraseña incorrectos');
       }
@@ -51,8 +71,7 @@ function Login() {
 
       const data = await response.json();
       localStorage.setItem('token', data.jwt);
-      localStorage.setItem('rol', 'CLIENTE'); // todos los google users son CLIENTE por ahora
-      navigate('/home');
+      redirectByRole(data.jwt);
     } catch (error) {
       console.error('Error login Google:', error);
     }

@@ -2,6 +2,7 @@ package com.entornos.v2_maven.Service;
 
 import com.entornos.v2_maven.Dtos.Request.AsignarCasoRequest;
 import com.entornos.v2_maven.Dtos.Request.CrearCasoRequest;
+import com.entornos.v2_maven.Dtos.Request.CrearCasoClienteRequest;
 import com.entornos.v2_maven.Entity.Archivo;
 import com.entornos.v2_maven.Entity.Caso;
 import com.entornos.v2_maven.Entity.Usuario;
@@ -48,6 +49,24 @@ public class CasoService {
         return caso.getTitulo();
     }
 
+    public String crearCasoConUsername(CrearCasoClienteRequest crearCasoRequest, String username){
+
+        Usuario cliente = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Caso caso = Caso.builder()
+                .titulo(crearCasoRequest.titulo())
+                .descripcion(crearCasoRequest.descripcion())
+                .esDemandado(crearCasoRequest.esDemandado())
+                .cliente(cliente)
+                .abogado(null)
+                .build();
+
+        casoRepository.save(caso);
+
+        return caso.getTitulo();
+    }
+
     public String asignarCaso(AsignarCasoRequest asignarCasoRequest){
 
         Usuario abogadoExistente = usuarioRepository.findById(asignarCasoRequest.idAbogado()).orElseThrow(()
@@ -69,6 +88,22 @@ public class CasoService {
                 -> new RuntimeException("Usuario no encontrado"));
 
         return casoRepository.findByCliente(usuarioExistente);
+    }
+
+    public List<Caso> obtenerCasosCliente(String username) {
+        Usuario cliente = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        return casoRepository.findByCliente(cliente);
+    }
+
+    public List<Caso> obtenerCasosAbogado(String username) {
+        Usuario abogado = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        return casoRepository.findByAbogado(abogado);
+    }
+
+    public List<Caso> obtenerTodosCasos() {
+        return casoRepository.findAll();
     }
 
 }

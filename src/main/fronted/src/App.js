@@ -5,6 +5,10 @@ import Home from "./components/Home";
 import Archivos from "./components/Archivos";
 import ListadoClientes from './components/ListadoClientes';
 import ListadoAbogados from './components/ListadoAbogados';
+import AdminHome from './components/AdminHome';
+import AbogadoHome from './components/AbogadoHome';
+import ClienteHome from './components/ClienteHome';
+
 
 function App() {
   return (
@@ -14,8 +18,11 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/home" element={<Home />} />
           <Route path="/archivos" element={<Archivos />} />
-          <Route path="/clientes" element={<ListadoClientes />} />  
+          <Route path="/clientes" element={<ListadoClientes />} />
           <Route path="/abogados" element={<ListadoAbogados />} />
+          <Route path="/admin" element={<AdminHome />} />
+          <Route path="/abogado" element={<AbogadoHome />} />
+          <Route path="/cliente" element={<ClienteHome />} />
         </Routes>
       </Router>
     </GoogleOAuthProvider>
